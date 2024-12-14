@@ -45,4 +45,15 @@ graph_builder.add_conditional_edges(
 # Any time a tool is called, we return to the chatbot to decide the next step
 graph_builder.add_edge("tools", "chatbot")
 graph_builder.set_entry_point("chatbot")
-graph = graph_builder.compile(checkpointer=memory)
+graph = graph_builder.compile(
+    checkpointer=memory,
+    # this one is to interrupt the tools node before it is called (human in the loop),
+    # # `None` will append nothing new to the current state, letting it resume as if it had never been interrupted,
+    # after interrupting, we can manually update the state using the update_state function
+    interrupt_before=["tools"],
+    # we can also interrupt the chatbot node after it is called (human in the loop)
+    # interrupt_after=["chatbot"],s
+)
+
+
+# we can get back to a certain point using get_state_history() method
